@@ -1,0 +1,47 @@
+{
+  "name": "museonic",
+  "version": "1.0.0",
+  "description": "Local voice-to-song AI companion built with Electron, Whisper, and n8n automation.",
+  "main": "main.js",
+  "scripts": {
+    "build:renderer": "cd renderer && npm run build",
+    "start": "npm run build:renderer && electron .",
+    "dev": "cd renderer && npm run dev",
+    "rebuild": "electron-rebuild -f -w node-record-lpcm16",
+    "setup-python": "bash python_env/setup.sh",
+    "transcribe": "python3 backend/whisper/transcribe.py --file ./temp/sample.wav",
+    "postinstall": "cd renderer && npm install"
+  },
+  "keywords": [
+    "music",
+    "electron",
+    "whisper",
+    "n8n",
+    "voice-to-song",
+    "ai companion",
+    "local voice-to-song AI companion"
+  ],
+  "author": "Neha Kumari",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@chainsafe/libp2p-gossipsub": "^14.1.2",
+    "@chainsafe/libp2p-noise": "^17.0.0",
+    "@libp2p/circuit-relay-v2": "^4.1.2",
+    "@libp2p/identify": "^4.0.9",
+    "@libp2p/kad-dht": "^16.1.2",
+    "@libp2p/mdns": "^12.0.10",
+    "@libp2p/ping": "^3.0.9",
+    "@libp2p/webrtc": "^6.0.10",
+    "@libp2p/websockets": "^10.1.2",
+    "@libp2p/yamux": "^8.0.1",
+    "dotenv": "^17.2.3",
+    "electron": "^39.1.1",
+    "libp2p": "^3.1.2",
+    "node-record-lpcm16": "^1.0.1",
+    "python-shell": "^5.0.0"
+  },
+  "devDependencies": {
+    "electron-rebuild": "^3.2.9"
+  }
+}

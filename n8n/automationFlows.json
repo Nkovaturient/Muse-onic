@@ -1,0 +1,38 @@
+{
+  "lyricsSearch": {
+    "description": "Accepts { \"query\": string } and returns { \"title\": string, \"url\": string, \"source\": string } using DuckDuckGo/SerpAPI enrichment.",
+    "webhookPath": "/webhook/lyrics-search",
+    "method": "POST",
+    "notes": [
+      "Normalize query before downstream calls.",
+      "Use SerpAPI when SERPAPI_KEY is configured, otherwise fall back to DuckDuckGo."
+    ]
+  },
+  "melodySearch": {
+    "description": "Accepts { \"fingerprint\": string } derived from audio embeddings and calls ACRCloud.",
+    "webhookPath": "/webhook/melody-search",
+    "method": "POST",
+    "notes": [
+      "Fingerprint is base64-encoded float32 array.",
+      "Fallback to local database when offline."
+    ]
+  },
+  "fetchPlayable": {
+    "description": "Transforms a canonical track payload into a playable media URL using yt-dlp or cached assets.",
+    "webhookPath": "/webhook/fetch-playable",
+    "method": "POST",
+    "notes": [
+      "Supports YouTube, Bandcamp, SoundCloud sources.",
+      "Return { \"url\": string, \"expiresAt\": string }."
+    ]
+  },
+  "playbackEvents": {
+    "description": "Optional hook for logging playback telemetry.",
+    "webhookPath": "/webhook/playback-events",
+    "method": "POST",
+    "notes": [
+      "Receives { \"event\": \"started\" | \"stopped\", \"track\": {...} }.",
+      "Can be used to update history dashboards."
+    ]
+  }
+}
