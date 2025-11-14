@@ -4,6 +4,9 @@
 
 Museonic is a local-first, privacy-minded desktop assistant that turns spontaneous audio (a hum, a lyric, a muttered line) into immediate music playback. Built for speed and intuition: press a hotkey, sing, and the track plays — no subscription, no cloud lock-in, no momentum lost.
 
+<img width="1031" height="967" alt="Screenshot 2025-11-15 at 2 48 35 AM" src="https://github.com/user-attachments/assets/c41266d7-2c35-4316-a765-d365541b5a6d" />
+
+
 ---
 
 ## Why Museonic Exists
