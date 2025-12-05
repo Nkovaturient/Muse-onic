@@ -148,7 +148,7 @@ museonic/
 * **yt-dlp** for YouTube search (recommended): `brew install yt-dlp`
 * **(Optional)** Ollama running locally: `http://localhost:11434`
 * **(Optional)** n8n instance for orchestration: `http://localhost:5678`
-* **(Optional)** BlackHole for system audio capture: `brew install blackhole-2ch` (see [SYSTEM_AUDIO_SETUP.md](./SYSTEM_AUDIO_SETUP.md))
+* **(Optional)** BlackHole for system audio capture: `brew install blackhole-2ch`
 
 ### Install
 
@@ -198,8 +198,6 @@ Create a `.env` file in the root directory:
 * **`MUSEONIC_OLLAMA_MODEL`**: model name (e.g., `llama3.2`, `mistral:7b`)
 * **`MUSEONIC_SEARCH_PROVIDER`**: `youtube` (default, uses yt-dlp), `serpapi`, or `n8n`
 * **`MUSEONIC_SEARCH_TIMEOUT`**: timeout in milliseconds (default: 45000)
-
-**See also**: [SYSTEM_AUDIO_SETUP.md](./SYSTEM_AUDIO_SETUP.md) for system audio capture setup.
 
 **Security note**: store private API keys via OS secure store (Keytar) rather than plaintext `.env`.
 
@@ -343,9 +341,9 @@ We welcome work on:
 ---
 
 
-## Final Note — A Short Manifesto
+## Final Note
 
-> Muse: the best music moments are the ones left barely remembered — let the system find them for you when you need to hear them.
+> Muse: the best music moments are the ones left barely remembered — let the system find them for you when you need to hear them.  
 
 ---
 
