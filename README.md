@@ -11,7 +11,7 @@ Museonic is a local-first, privacy-minded desktop assistant that turns spontaneo
 
 ## Why Museonic Exists
 
-People remember songs in the moment — a few notes or a phrase — and then lose the thread to friction: search, signup, or delay. Museonic removes that friction and restores the feeling-to-audio loop:
+People(ahem, I) remember songs in the moment — a few notes or a phrase — and then lose the thread to friction: search, signup, or delay. Museonic removes that friction and restores the feeling-to-audio loop:
 
 * **Instant**: capture and resolve audio in seconds.
 * **Local-first**: core recognition and reasoning run on your device (Whisper, Ollama).
