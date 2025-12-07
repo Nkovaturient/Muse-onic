@@ -47,9 +47,9 @@
     "python-shell": "^5.0.0"
   },
   "devDependencies": {
-    "electron": "^39.1.1",
-    "electron-rebuild": "^3.2.9",
-    "electron-builder": "^24.9.1"
+    "electron": "^39.2.6",
+    "electron-builder": "^24.9.1",
+    "electron-rebuild": "^3.2.9"
   },
   "build": {
     "appId": "com.museonic.app",
