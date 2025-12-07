@@ -31,6 +31,9 @@ People(ahem, I) remember songs in the moment — a few notes or a phrase — and
    
    — If you want to share or log, n8n automations can be triggered in the background.
 
+   <img width="1679" height="959" alt="Screenshot 2025-12-07 at 3 12 42 PM" src="https://github.com/user-attachments/assets/810cbc11-5436-4acd-89c9-935750ffe45b" />
+
+
 ---
 
 ## Architecture (Conceptual)
