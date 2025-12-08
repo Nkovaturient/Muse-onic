@@ -27,7 +27,10 @@
     "ai companion",
     "local voice-to-song AI companion"
   ],
-  "author": "Neha Kumari nk8981398@gmail.com",
+  "author": {
+    "name": "Neha Kumari",
+    "email": "nk8981398@gmail.com"
+  },
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
