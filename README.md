@@ -2,7 +2,8 @@
 
 > **TL;DR: I was tired of Youtube Ads and Spotify Premium. Hence, this muse. Period.**
 
-Museonic is a local-first, privacy-minded desktop assistant that turns spontaneous audio (a hum, a lyric, a muttered line) into immediate music playback. Built for speed and intuition: press a hotkey, sing, and the track plays — no subscription, no cloud lock-in, no momentum lost.
+- Museonic is a local-first, privacy-minded desktop assistant that turns spontaneous audio (a hum, a lyric, a muttered line) into immediate music playback.
+- Built for speed and intuition: press `ctrl/cmd + m`, sing, and the track plays — no subscription, no cloud lock-in, no momentum lost.
 
 <img width="1031" height="967" alt="Screenshot 2025-11-15 at 2 48 35 AM" src="https://github.com/user-attachments/assets/c41266d7-2c35-4316-a765-d365541b5a6d" />
 
@@ -11,7 +12,7 @@ Museonic is a local-first, privacy-minded desktop assistant that turns spontaneo
 
 ## Why Museonic Exists
 
-People(ahem, I) remember songs in the moment — a few notes or a phrase — and then lose the thread to friction: search, signup, or delay. Museonic removes that friction and restores the feeling-to-audio loop:
+People remember songs in the moment — a few notes or a phrase — and then lose the thread to friction: search, signup, or delay. Museonic removes that friction and restores the feeling-to-audio loop:
 
 * **Instant**: capture and resolve audio in seconds.
 * **Local-first**: core recognition and reasoning run on your device (Whisper, Ollama).
