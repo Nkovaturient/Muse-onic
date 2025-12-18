@@ -146,6 +146,7 @@ museonic/
 ### Prerequisites
 
 * **Node.js** 18+ and npm
+* **Electron**
 * **Python** 3.10+ (for local Whisper) and `ffmpeg`
 * **mpv** installed and available in `PATH`
 * **sox** or **rec** for audio recording (macOS: `brew install sox`)
@@ -171,7 +172,7 @@ brew install sox yt-dlp ffmpeg
 
 # Optional: System audio capture (macOS)
 brew install blackhole-2ch
-# Then configure Multi-Output Device (see SYSTEM_AUDIO_SETUP.md)
+# Then configure Multi-Output Device
 ```
 
 ### Run (Dev)
