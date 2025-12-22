@@ -30,7 +30,7 @@ People remember songs in the moment — a few notes or a phrase — and then los
 
    — If the answer is ambiguous, it asks a short clarifying question.
    
-   — If you want to share or log, n8n automations can be triggered in the background.
+   — If you want to share or log, n8n automations can be triggered in the background. [upcoming]
 
    <img width="1679" height="959" alt="Screenshot 2025-12-07 at 3 12 42 PM" src="https://github.com/user-attachments/assets/810cbc11-5436-4acd-89c9-935750ffe45b" />
 
@@ -113,6 +113,13 @@ museonic/
 
 ---
 
+## TODO
+
+### n8n Integration ✅
+* Offload richer multi-step tasks to n8n: metadata enrichment, logging, remote notifications, playlist ops.
+* Electron triggers n8n webhooks; n8n responds with results.
+
+
 <!-- ## Phase Summary (What Each Release Delivers)
 
 ### Phase 1 — MVP ✅
@@ -124,10 +131,6 @@ museonic/
 * Intent detection (lyrics vs melody) via local Ollama model.
 * Few-shot prompting to return strictly formatted JSON for reliable routing.
 * Fallback to rule-based detection when Ollama is unavailable.
-
-### Phase 3 — n8n Integration ✅
-* Offload richer multi-step tasks to n8n: metadata enrichment, logging, remote notifications, playlist ops.
-* Electron triggers n8n webhooks; n8n responds with results.
 
 ### Phase 4 — Melody Fingerprint ✅
 * Audio embedding extraction and fingerprint matching (ACRCloud, n8n, or YouTube fallback).
