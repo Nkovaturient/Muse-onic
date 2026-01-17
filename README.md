@@ -1,6 +1,6 @@
 # Museonic
 
-> **TL;DR: I was tired of Youtube Ads and Spotify Premium. Hence, this muse. Period.**
+> **TL;DR: I was tired of Youtube Ads and Spotify Premium. Hence, this muse + sonic. Period.**
 
 - Museonic is a local-first, privacy-minded desktop assistant that turns spontaneous audio (a hum, a lyric, a muttered line) into immediate music playback.
 - Built for speed and intuition: **Press** `cmd + m`, **Sing,** and the track **Plays** — no subscription, no cloud lock-in, no momentum lost. _(Amen!)_
