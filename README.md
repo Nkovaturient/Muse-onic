@@ -116,6 +116,7 @@ museonic/
 ## TODO
 
 ### n8n Integration ✅
+
 * Offload richer multi-step tasks to n8n: metadata enrichment, logging, remote notifications, playlist ops.
 * Electron triggers n8n webhooks; n8n responds with results.
 
