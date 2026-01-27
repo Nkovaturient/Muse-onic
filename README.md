@@ -1,9 +1,9 @@
 # Museonic
 
-> **TL;DR: I was tired of Youtube Ads and Spotify Premium. Hence, this muse. Period.**
+> **TL;DR: I was tired of Youtube Ads and Spotify Freemium. Hence, this muse + sonic + music. Period.**
 
 - Museonic is a local-first, privacy-minded desktop assistant that turns spontaneous audio (a hum, a lyric, a muttered line) into immediate music playback.
-- Built for speed and intuition: press `ctrl/cmd + m`, sing, and the track plays — no subscription, no cloud lock-in, no momentum lost.
+- Built for speed and intuition: **Press** `cmd + m`, **Sing,** and the track **Plays** — no subscription, no cloud lock-in, no momentum lost. _(Amen!)_
 
 <img width="1031" height="967" alt="Screenshot 2025-11-15 at 2 48 35 AM" src="https://github.com/user-attachments/assets/c41266d7-2c35-4316-a765-d365541b5a6d" />
 
@@ -116,6 +116,7 @@ museonic/
 ## TODO
 
 ### n8n Integration ✅
+
 * Offload richer multi-step tasks to n8n: metadata enrichment, logging, remote notifications, playlist ops.
 * Electron triggers n8n webhooks; n8n responds with results.
 
