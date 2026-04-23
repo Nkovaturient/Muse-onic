@@ -1,5 +1,26 @@
 const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const { clearConfigCache } = require('./backend/utils/config');
+
+if (process.platform === 'darwin') {
+  const extra = ['/opt/homebrew/bin', '/usr/local/bin', '/opt/homebrew/sbin'].filter((p) =>
+    fs.existsSync(p)
+  );
+  if (extra.length) {
+    process.env.PATH = `${extra.join(':')}:${process.env.PATH || ''}`;
+  }
+}
+
+if (app && app.isPackaged) {
+  const bundled = path.join(process.resourcesPath, 'venv', 'bin', 'python3');
+  if (fs.existsSync(bundled)) {
+    process.env.MUSEONIC_PYTHON_BIN = bundled;
+  }
+}
+
+clearConfigCache();
+
 const { startRecording, stopRecording } = require('./backend/recorder/mic');
 const { transcribeAudio } = require('./backend/whisper/transcribe');
 const { searchSong } = require('./backend/search/lyricsSearch');
@@ -7,9 +28,25 @@ const { playTrack, stopPlayback } = require('./backend/playback/player');
 const { determineIntent } = require('./ollama/promptRouter');
 const { processRecording } = require('./backend/process/pipeline');
 const { createLogger } = require('./backend/utils/logger');
+const { getRuntimeDiagnostics } = require('./backend/utils/runtimeDiagnostics');
 
 const logger = createLogger('main');
 let mainWindow;
+function resolveBrandLogoPath() {
+  const candidates = [
+    path.join(__dirname, 'build', 'icon.png'),
+    path.join(__dirname, 'renderer', 'dist', 'logo2.png'),
+    path.join(__dirname, 'renderer', 'dist', 'logo3.jpeg'),
+    path.join(__dirname, 'renderer', 'public', 'logo2.png'),
+    path.join(__dirname, 'renderer', 'public', 'logo3.jpeg')
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) {
+      return p;
+    }
+  }
+  return null;
+}
 
 function calculateWindowPosition() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -31,6 +68,7 @@ function createWindow() {
   };
   
   const position = calculateWindowPosition();
+  const brandLogoPath = resolveBrandLogoPath();
   
   mainWindow = new BrowserWindow({
     width: windowSize.width,
@@ -53,6 +91,7 @@ function createWindow() {
     resizable: true,
     movable: true,
     fullscreenable: false,
+    icon: brandLogoPath || undefined,
   });
 
   const rendererPath = path.join(__dirname, 'renderer', 'dist', 'index.html');
@@ -118,6 +157,11 @@ function registerHotkey() {
 }
 
 app.whenReady().then(() => {
+  const brandLogoPath = resolveBrandLogoPath();
+  if (brandLogoPath && process.platform === 'darwin' && app.dock?.setIcon) {
+    app.dock.setIcon(brandLogoPath);
+  }
+
   createWindow();
 
   registerHotkey();
@@ -211,4 +255,19 @@ ipcMain.handle('capture:process', async (_, filePath) => {
     logger.error('capture:process failed', err);
     throw err;
   }
+});
+
+ipcMain.handle('app:diagnostics', async () => {
+  try {
+    return getRuntimeDiagnostics();
+  } catch (err) {
+    logger.error('app:diagnostics failed', err);
+    return { error: err.message || String(err) };
+  }
+});
+
+ipcMain.handle('app:branding', async () => {
+  return {
+    logoPath: resolveBrandLogoPath()
+  };
 });

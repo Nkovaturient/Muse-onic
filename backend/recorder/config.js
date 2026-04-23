@@ -158,42 +158,36 @@ function getRecordingOptions() {
     device: null // Let the recorder choose default device
   };
 
-  // Determine recording mode and device
   const recordingMode = config.recordingMode || 'auto';
-  
-  if (recordingMode === 'system' || (recordingMode === 'auto' && platform === 'darwin')) {
-    // Try to detect system audio device
-    const systemDevice = detectSystemAudioDevice();
-    if (systemDevice) {
-      // For system audio, we need to use a virtual device
-      // BlackHole is the most common
-      if (systemDevice === 'BlackHole') {
-        // Try different BlackHole device names
-        const blackHoleDevices = ['BlackHole 2ch', 'BlackHole 16ch', 'BlackHole'];
-        for (const device of blackHoleDevices) {
-          try {
-            // Test if device exists by trying to list it
-            execSync(`sox --help 2>&1 | grep -i "${device}" || true`, { stdio: 'ignore' });
-            options.device = device;
-            logger.info(`Using system audio device: ${device}`);
-            break;
-          } catch (err) {
-            continue;
-          }
-        }
-        // If sox doesn't work, try with rec
-        if (!options.device && recorderBackend === 'rec') {
-          // rec can use device names directly
-          options.device = 'BlackHole 2ch'; // Default to 2ch
-          logger.info('Using BlackHole 2ch for system audio (via rec)');
+  const systemDevice = detectSystemAudioDevice();
+  const useSystemCapture =
+    recordingMode === 'system' ||
+    (recordingMode === 'auto' && platform === 'darwin' && Boolean(systemDevice));
+
+  if (recordingMode === 'system' && !systemDevice) {
+    throw new Error(
+      'System audio (MUSEONIC_RECORDING_MODE=system) needs a virtual loopback device (e.g. BlackHole on macOS). ' +
+        'Install from https://existential.audio/blackhole/ and route output through it, or set MUSEONIC_RECORDING_MODE=mic to use the built-in microphone.'
+    );
+  }
+
+  if (useSystemCapture && systemDevice) {
+    if (systemDevice === 'BlackHole') {
+      const blackHoleDevices = ['BlackHole 2ch', 'BlackHole 16ch', 'BlackHole'];
+      for (const device of blackHoleDevices) {
+        try {
+          execSync(`sox --help 2>&1 | grep -i "${device}" || true`, { stdio: 'ignore' });
+          options.device = device;
+          logger.info(`Using system audio device: ${device}`);
+          break;
+        } catch (err) {
+          continue;
         }
       }
-    } else if (recordingMode === 'system') {
-      logger.warn(
-        'System audio mode requested but no virtual audio device found.\n' +
-        'Install BlackHole: brew install blackhole-2ch\n' +
-        'Then set your system output to BlackHole in Audio MIDI Setup.'
-      );
+      if (!options.device && recorderBackend === 'rec') {
+        options.device = 'BlackHole 2ch';
+        logger.info('Using BlackHole 2ch for system audio (via rec)');
+      }
     }
   }
 

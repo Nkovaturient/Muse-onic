@@ -1,11 +1,26 @@
 # Museonic
 
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/Version-1.0.0-6366F1?style=flat-square" alt="version" /></a>
+  <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/License-ISC-555555?style=flat-square" alt="License ISC" /></a>
+  <a href="https://www.electronjs.org/"><img src="https://img.shields.io/badge/Electron-39-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron" /></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/React-Vite-61DAFB?style=flat-square&logo=react&logoColor=222" alt="React" /></a>
+  <a href="https://github.com/openai/whisper"><img src="https://img.shields.io/badge/Whisper-STT-412991?style=flat-square" alt="Whisper" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Playback-mpv%20%7C%20VLC%20%7C%20yt--dlp-111827?style=flat-square&logo=youtube&logoColor=FF0000" alt="Playback" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Build-electron--builder-000000?style=flat-square&logo=electron" alt="electron-builder" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Platform-macOS%20%7C%20Windows%20%7C%20Linux-2d3748?style=flat-square" alt="Platform" /></a>
+</p>
+
+<p align="center">
+  <strong>Local-first</strong> · <kbd>Cmd</kbd> + <kbd>M</kbd> · hum → find → play &nbsp;|&nbsp; <em>No account. No ad wall. No cloud for the core loop.</em>
+</p>
+
 > **TL;DR: I was tired of Youtube Ads and Spotify Freemium. Hence, this muse + sonic + music. Period.**
 
 - Museonic is a local-first, privacy-minded desktop assistant that turns spontaneous audio (a hum, a lyric, a muttered line) into immediate music playback.
 - Built for speed and intuition: **Press** `cmd + m`, **Sing,** and the track **Plays** — no subscription, no cloud lock-in, no momentum lost. _(Amen!)_
 
-<img width="1031" height="967" alt="Screenshot 2025-11-15 at 2 48 35 AM" src="https://github.com/user-attachments/assets/c41266d7-2c35-4316-a765-d365541b5a6d" />
+<img width="1031" height="967" alt="Museonic UI" src="https://github.com/user-attachments/assets/c41266d7-2c35-4316-a765-d365541b5a6d" />
 
 
 ---
@@ -212,13 +227,38 @@ Create a `.env` file in the root directory:
 
 ---
 
+## Distribution (DMG / zip) and what end users need
+
+The built `.dmg` (or zip) **does not include** Python, Whisper models, `sox`, `mpv`, or `yt-dlp` **unless** you add them to the build. A fresh install from disk image alone is expected to show setup hints until the host machine has the usual tools:
+
+* **Whisper (Python):** A Python 3 with `openai-whisper` installed — the same as running `npm run setup-python` in the repo, or `pip install openai-whisper` for the interpreter you point at with `MUSEONIC_PYTHON_BIN`.
+* **Capture:** `sox` or `rec` (e.g. `brew install sox` on macOS). GUI apps on macOS often get a **minimal `PATH`**; the app now prepends common Homebrew paths so Homebrew installs are found without a login shell.
+* **Search / playback:** `yt-dlp` and `mpv` (or VLC), typically from Homebrew or your package manager.
+
+**Optional bundled venv:** To ship a self-contained Python, run `npm run setup-python` before `npm run dist`, add an `extraResources` block in `package.json` to copy `venv` into the app’s `Resources` folder (see [electron-builder extraResources](https://www.electron.build/configuration/configuration#Configuration-extraResources)). The main process sets `MUSEONIC_PYTHON_BIN` to `process.resourcesPath/venv/bin/python3` when that file exists. Omit `extraResources` if the venv is not present or the build will fail.
+
+**Microphone vs system audio:** Humming and singing use the **microphone** — set `MUSEONIC_RECORDING_MODE=mic` (default in code and `.env.example`). **System audio** (capturing other apps) requires a **virtual loopback** such as [BlackHole](https://existential.audio/blackhole/); that is a separate install, not a built-in macOS toggle.
+
+## Mac App Store (expectations)
+
+App Store distribution is **separate** from a notarized DMG. It requires a paid Apple developer account, app signing, **privacy strings** (e.g. microphone usage in `Info.plist`), and **sandbox** rules. Sandboxed apps cannot rely on the user’s Homebrew `PATH` the same way: you would need **bundled** helper binaries or approved APIs, and to justify each entitlement in review. Many Electron tools ship with **DMG + Apple notarization** instead. Plan extra engineering if you need full Store compliance.
+
+### Production & reliability (recent fixes, short)
+
+* **Config / PATH (DMG and GUI launches):** Main prepends common Homebrew bin paths so `sox`/`rec`, `yt-dlp`, and `mpv` resolve without a full login `PATH`. Python for Whisper falls back to system `python3` or `MUSEONIC_PYTHON_BIN`; optional bundled venv at `Resources/venv` is detected when present.
+* **Recorder crash on stop:** Do not strip all `error` listeners on the `node-record-lpcm16` stream before the child exits—killed `rec`/`sox` can emit a synthetic `error` with a null code; the handler stays attached and treats intentional stops as expected.
+* **Recording mode:** `mic` for sing/hum; `auto` on macOS only routes through BlackHole when a loopback device is actually detected; `system` without a loopback fails with a clear message.
+* **YouTube + mpv:** Prefer **`yt-dlp -g`** to a **direct HTTPS** stream, then `mpv` that URL (avoids many Homebrew `mpv` builds that lack or misbehave with the ytdl Lua hook). Fall back to watch URL + `--ytdl`/`--ytdl-path` if needed. **VLC** also checks `/Applications/VLC.app/Contents/MacOS/VLC` on macOS. Quick startup failure tries the next player.
+
+---
+
 ## How It Works — End-to-End (Expanded)
 
 ### 1. Recording
 The Electron renderer triggers a node recorder via IPC. Audio is captured using `node-record-lpcm16` and saved to `./temp/audio.wav`. The recorder supports:
 * **Microphone input** (default): captures user humming/singing
 * **System audio** (optional): captures what's playing via BlackHole virtual device
-* **Auto mode**: automatically detects and uses system audio if available
+* **Auto mode** (macOS): uses a loopback device such as BlackHole **only if it is already installed**; otherwise the default microphone is used
 
 Recording mode is configurable via `MUSEONIC_RECORDING_MODE`. The recorder auto-detects available backends (sox, rec, arecord) and selects the best option for your platform.
 
@@ -253,7 +293,7 @@ The intent can be `lyrics`, `melody`, or `unknown`. If confidence is below thres
 * Falls back to generic YouTube search if specialized services are unavailable.
 
 ### 5. Playback
-The player controller (`backend/playback/player.js`) spawns an `mpv` process to stream/play the URL locally. The UI shows "Now Playing" and persists the match for quick replay or sharing.
+The player controller (`backend/playback/player.js`) resolves streams with **yt-dlp** where needed, spawns **mpv** (or **VLC**) to play locally, and falls back if startup fails. The UI shows "Now Playing" and persists the match for quick replay or sharing.
 
 ### 6. Automation
 Post-playback, Electron optionally posts to an n8n webhook (`n8n/workflowHooks.js`) with structured event data for background automations:

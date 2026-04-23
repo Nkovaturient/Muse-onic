@@ -6,6 +6,10 @@ const { createLogger } = require('../utils/logger');
 const logger = createLogger('recorder');
 
 let activeRecorder = null;
+// node-record-lpcm16 emits a stream "error" when sox/rec exits non-zero; killing the process
+// uses signal exit where code is often null, which still triggers that emit. We must not remove
+// all error listeners on stop, and we ignore that benign case while a stop is in progress.
+const stopInProgress = { value: false };
 
 function assertNoActiveRecording() {
   if (activeRecorder) {
@@ -23,6 +27,7 @@ async function startRecording() {
   let audioStream;
   
   try {
+    stopInProgress.value = false;
     const options = getRecordingOptions();
     logger.debug('Starting recorder with options', { recorder: options.recorder, sampleRate: options.sampleRate });
     
@@ -31,6 +36,17 @@ async function startRecording() {
     
     // Handle stream errors immediately
     audioStream.on('error', (err) => {
+      if (stopInProgress.value) {
+        const msg = typeof err === 'string' ? err : err?.message || String(err);
+        if (
+          (msg && msg.includes('exited with error code')) ||
+          (msg && msg.includes('rec has exited')) ||
+          (msg && msg.includes('sox has exited'))
+        ) {
+          logger.debug('Suppressed expected recorder exit after stop', { msg });
+          return;
+        }
+      }
       logger.error('Audio stream error during recording', err);
       if (activeRecorder) {
         activeRecorder = null;
@@ -103,6 +119,7 @@ async function stopRecording() {
   }
   
   activeRecorder = null;
+  stopInProgress.value = true;
 
   return new Promise((resolve, reject) => {
     const TIMEOUT_MS = 10000; // Increased to 10 seconds
@@ -193,9 +210,10 @@ async function stopRecording() {
     fileStream.once('error', onError);
 
     try {
-      // Stop the audio stream first
+      // Do not call removeAllListeners("error") — the recorder child will emit a synthetic
+      // "error" on the stdout stream when the process is killed; keep the handler so it
+      // never becomes an unhandled error on the process.
       if (audioStream && !audioStream.destroyed) {
-        audioStream.removeAllListeners('error');
         audioStream.destroy();
       }
       

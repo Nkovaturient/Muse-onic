@@ -18,6 +18,47 @@ function loadEnv() {
   return projectRoot;
 }
 
+function resolvePythonBinary(projectRoot) {
+  const fromEnv = (process.env.MUSEONIC_PYTHON_BIN || '').trim();
+  if (fromEnv) {
+    if (fromEnv === 'python3' || fromEnv === 'python') {
+      return fromEnv;
+    }
+    if (fs.existsSync(fromEnv)) {
+      return fromEnv;
+    }
+  }
+
+  const venvPath = path.join(projectRoot, 'venv', 'bin', 'python3');
+  if (fs.existsSync(venvPath)) {
+    return venvPath;
+  }
+
+  const venvWin = path.join(projectRoot, 'venv', 'Scripts', 'python.exe');
+  if (fs.existsSync(venvWin)) {
+    return venvWin;
+  }
+
+  if (process.platform === 'darwin' || process.platform === 'linux') {
+    const candidates = [
+      '/opt/homebrew/bin/python3',
+      '/usr/local/bin/python3',
+      '/usr/bin/python3'
+    ];
+    for (const c of candidates) {
+      if (fs.existsSync(c)) {
+        return c;
+      }
+    }
+  }
+
+  if (process.platform === 'win32') {
+    return 'python';
+  }
+
+  return 'python3';
+}
+
 function ensureDirectorySync(targetPath) {
   if (!fs.existsSync(targetPath)) {
     fs.mkdirSync(targetPath, { recursive: true });
@@ -35,9 +76,7 @@ function getConfig() {
     process.env.MUSEONIC_RECORD_DIR || path.join(tmpRoot, 'captures');
   ensureDirectorySync(recordingDir);
 
-  const pythonBinary =
-    process.env.MUSEONIC_PYTHON_BIN ||
-    path.join(projectRoot, 'venv', 'bin', 'python3');
+  const pythonBinary = resolvePythonBinary(projectRoot);
 
   const whisperScript =
     process.env.MUSEONIC_WHISPER_SCRIPT ||
@@ -98,8 +137,13 @@ function getConfig() {
   return cachedConfig;
 }
 
+function clearConfigCache() {
+  cachedConfig = null;
+}
+
 module.exports = {
   getConfig,
-  ensureDirectorySync
+  ensureDirectorySync,
+  clearConfigCache
 };
 

@@ -5,18 +5,19 @@
   "main": "main.js",
   "scripts": {
     "build:renderer": "cd renderer && npm run build",
+    "build:icon": "node scripts/apply-circular-macos-icon.js",
     "build": "npm run build:renderer",
-    "start": "npm run build:renderer && electron .",
+    "start": "npm run build:renderer && npm run build:icon && electron .",
     "dev": "cd renderer && npm run dev",
     "rebuild": "electron-rebuild -f -w node-record-lpcm16",
     "setup-python": "bash python_env/setup.sh",
     "transcribe": "python3 backend/whisper/transcribe.py --file ./temp/sample.wav",
     "postinstall": "cd renderer && npm install",
-    "dist": "npm run build:renderer && electron-builder",
-    "dist:mac": "npm run build:renderer && electron-builder --mac",
-    "dist:win": "npm run build:renderer && electron-builder --win",
-    "dist:linux": "npm run build:renderer && electron-builder --linux",
-    "pack": "npm run build:renderer && electron-builder --dir"
+    "dist": "npm run build:renderer && npm run build:icon && electron-builder",
+    "dist:mac": "npm run build:renderer && npm run build:icon && electron-builder --mac",
+    "dist:win": "npm run build:renderer && npm run build:icon && electron-builder --win",
+    "dist:linux": "npm run build:renderer && npm run build:icon && electron-builder --linux",
+    "pack": "npm run build:renderer && npm run build:icon && electron-builder --dir"
   },
   "keywords": [
     "music",
@@ -52,17 +53,20 @@
   "devDependencies": {
     "electron": "^39.2.7",
     "electron-builder": "^26.4.0",
-    "@electron/rebuild": "^3.6.1"
+    "@electron/rebuild": "^3.6.1",
+    "jimp": "^0.22.12"
   },
   "build": {
     "appId": "com.museonic.app",
     "productName": "Museonic",
+    "icon": "build/icon.png",
     "directories": {
       "output": "dist-electron"
     },
     "files": [
       "main.js",
       "preload.js",
+      "build/icon.png",
       "renderer/dist/**/*",
       "backend/**/*",
       "ollama/**/*",
@@ -78,7 +82,9 @@
         "dmg",
         "zip"
       ],
-      "icon": "build/icon.icns",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Museonic records short audio so it can transcribe what you hum or sing and find a matching track."
+      },
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
@@ -88,8 +94,7 @@
       "target": [
         "nsis",
         "portable"
-      ],
-      "icon": "build/icon.ico"
+      ]
     },
     "linux": {
       "target": [
@@ -97,8 +102,7 @@
         "deb",
         "rpm"
       ],
-      "category": "AudioVideo",
-      "icon": "build/icon.png"
+      "category": "AudioVideo"
     },
     "nsis": {
       "oneClick": false,

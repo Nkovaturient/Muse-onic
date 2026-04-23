@@ -19,10 +19,12 @@ function ensureFileExists(filePath) {
 }
 
 function validatePythonEnvironment(config) {
-  if (!fs.existsSync(config.pythonBinary)) {
+  const { pythonBinary } = config;
+  const looksShorthand = pythonBinary === 'python3' || pythonBinary === 'python';
+  if (!looksShorthand && !fs.existsSync(pythonBinary)) {
     throw new Error(
-      `Python binary not found: ${config.pythonBinary}\n` +
-      'Please run: npm run setup-python'
+      `Python binary not found: ${pythonBinary}\n` +
+        'Set MUSEONIC_PYTHON_BIN to a working python3, or run: npm run setup-python'
     );
   }
 

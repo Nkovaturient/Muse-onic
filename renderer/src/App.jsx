@@ -36,7 +36,8 @@ const fallbackBridge = {
   playSong: async () => {
     throw new Error('Museonic bridge unavailable in this environment.');
   },
-  stopSong: async () => {}
+  stopSong: async () => {},
+  getDiagnostics: async () => null
 };
 
 export default function App() {
@@ -47,9 +48,59 @@ export default function App() {
   const [recordFile, setRecordFile] = useState(null);
   const [intent, setIntent] = useState(null);
   const [bridgeMessage, setBridgeMessage] = useState(null);
+  const [setupHint, setSetupHint] = useState(null);
 
   const museonic = window.museonic ?? fallbackBridge;
   const bridgeIsMock = Boolean(museonic.__mock);
+
+  useEffect(() => {
+    if (bridgeIsMock || !museonic.getDiagnostics) {
+      return undefined;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const d = await museonic.getDiagnostics();
+        if (cancelled || !d || d.error) {
+          return;
+        }
+        const parts = [];
+        if (!d.recorderOk) {
+          parts.push(
+            'Audio capture (sox/rec) was not found. On macOS install with: brew install sox, then restart the app. Grant microphone access in System Settings if prompted.'
+          );
+        }
+        if (!d.pythonPathOk) {
+          parts.push(
+            'Python 3 was not found at the expected path. Run npm run setup-python in the dev folder, or set MUSEONIC_PYTHON_BIN to your python3. Packaged apps can bundle a venv; see README (Distribution).'
+          );
+        } else if (!d.whisperImportOk) {
+          parts.push(
+            'The whisper Python package is missing. Run: pip install openai-whisper (in the same environment as the app’s Python) or npm run setup-python from the project repository.'
+          );
+        }
+        if (!d.ytDlpOk) {
+          parts.push('Install yt-dlp for YouTube search: brew install yt-dlp');
+        }
+        if (!d.mpvOrPlayback) {
+          parts.push('Install mpv (or VLC) for playback: brew install mpv');
+        }
+        if (d.recordingMode === 'system' && !d.systemAudioDevice) {
+          parts.push(
+            'Recording mode is "system" but no loopback device (e.g. BlackHole) was detected. Use MUSEONIC_RECORDING_MODE=mic to record from the mic, or install and configure BlackHole for system audio.'
+          );
+        }
+        if (parts.length) {
+          setSetupHint(parts.join(' '));
+        }
+      } catch (e) {
+        logger.error('getDiagnostics', e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bridgeIsMock, museonic]);
 
   useEffect(() => {
     // handle global shortcut trigger from main
@@ -196,6 +247,7 @@ export default function App() {
             <div className="brand">Museonic</div>
             <p className="landing-text">Press the button below or use Ctrl+M inside the Electron app to start humming.</p>
             <button className="btn" onClick={openModal}>Open Recorder</button>
+            {setupHint && <p className="hint warning">{setupHint}</p>}
             {bridgeMessage && <p className="hint warning">{bridgeMessage}</p>}
           </div>
         </div>
@@ -229,6 +281,7 @@ export default function App() {
                 )}
                 {status === 'searching' && <p className="hint">🔍 Searching for a match…</p>}
                 {status === 'playing' && <p className="hint">🎵 Playing now — enjoy!</p>}
+                {setupHint && <p className="hint warning">{setupHint}</p>}
                 {bridgeMessage && (
                   <p className={`hint ${bridgeMessage.includes('error') || bridgeMessage.includes('failed') ? 'warning' : ''}`}>
                     {bridgeMessage}

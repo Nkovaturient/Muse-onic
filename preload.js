@@ -9,5 +9,7 @@ contextBridge.exposeInMainWorld('museonic', {
   playSong: (payload) => ipcRenderer.invoke('song:play', payload),
   stopSong: () => ipcRenderer.invoke('song:stop'),
   determineIntent: (transcript) => ipcRenderer.invoke('intent:determine', transcript),
-  processRecording: (file) => ipcRenderer.invoke('capture:process', file)
+  processRecording: (file) => ipcRenderer.invoke('capture:process', file),
+  getDiagnostics: () => ipcRenderer.invoke('app:diagnostics'),
+  getBranding: () => ipcRenderer.invoke('app:branding')
 });
