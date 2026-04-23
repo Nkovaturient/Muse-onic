@@ -15,7 +15,7 @@
   <strong>Local-first</strong> · <kbd>Cmd</kbd> + <kbd>M</kbd> · hum → find → play &nbsp;|&nbsp; <em>No account. No ad wall. No cloud for the core loop.</em>
 </p>
 
-> **TL;DR: I was tired of Youtube Ads and Spotify Freemium. Hence, this muse + sonic + music. Period.**
+> **TL;DR: I was tired of Youtube Ads and Spotify Freemium. Hence, this. Period.**
 
 - Museonic is a local-first, privacy-minded desktop assistant that turns spontaneous audio (a hum, a lyric, a muttered line) into immediate music playback.
 - Built for speed and intuition: **Press** `cmd + m`, **Sing,** and the track **Plays** — no subscription, no cloud lock-in, no momentum lost. _(Amen!)_
