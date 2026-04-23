@@ -1,4 +1,6 @@
-# Museonic
+# <div align="center"> Museonic </div>
+
+> **TL;DR: I was tired of Youtube Ads and Spotify Freemium. Hence, this. Period.**
 
 <p align="center">
   <a href="#"><img src="https://img.shields.io/badge/Version-1.0.0-6366F1?style=flat-square" alt="version" /></a>
@@ -15,7 +17,6 @@
   <strong>Local-first</strong> · <kbd>Cmd</kbd> + <kbd>M</kbd> · hum → find → play &nbsp;|&nbsp; <em>No account. No ad wall. No cloud for the core loop.</em>
 </p>
 
-> **TL;DR: I was tired of Youtube Ads and Spotify Freemium. Hence, this. Period.**
 
 - Museonic is a local-first, privacy-minded desktop assistant that turns spontaneous audio (a hum, a lyric, a muttered line) into immediate music playback.
 - Built for speed and intuition: **Press** `cmd + m`, **Sing,** and the track **Plays** — no subscription, no cloud lock-in, no momentum lost. _(Amen!)_
@@ -358,13 +359,6 @@ The leader advertises a jam room via libp2p pubsub (`backend/network/p2pNode.js`
 ---
 
 ## Contributing
-
-If you want to help:
-
-1. Fork the repo.
-2. Create a branch named `feat/<describe>`.
-3. Add tests where applicable (consider Jest for Node.js, Vitest for renderer).
-4. Open PR with a clear description and a short demo GIF if UI changes.
 
 We welcome work on:
 * Audio preprocessing and robustness for low-quality recordings.
