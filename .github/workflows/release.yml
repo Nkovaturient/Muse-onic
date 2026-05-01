@@ -71,12 +71,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Only primary installers (no .pak, blockmaps, zips, deb/rpm, unpacked dirs) — smaller artifacts + release.
       - name: Upload macOS artifacts
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
           name: dist-macos
-          path: dist-electron/*
+          path: dist-electron/*.dmg
           if-no-files-found: error
 
       - name: Upload Windows artifacts
@@ -84,7 +85,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist-windows
-          path: dist-electron/*
+          path: dist-electron/*.exe
           if-no-files-found: error
 
       - name: Upload Linux artifacts
@@ -92,7 +93,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dist-linux
-          path: dist-electron/*
+          path: dist-electron/*.AppImage
           if-no-files-found: error
 
   release:
@@ -125,7 +126,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist-electron/**/*
+            dist-electron/macos/*.dmg
+            dist-electron/windows/*.exe
+            dist-electron/linux/*.AppImage
+          fail_on_unmatched_files: true
           draft: false
           prerelease: false
           generate_release_notes: true
