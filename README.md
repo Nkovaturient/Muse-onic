@@ -3,7 +3,7 @@
 > **TL;DR: I was tired of Youtube Ads and Spotify Freemium. Hence, this. Period.**
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/Version-1.0.3-6366F1?style=flat-square" alt="version" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Version-1.0.7-6366F1?style=flat-square" alt="version" /></a>
   <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/License-ISC-555555?style=flat-square" alt="License ISC" /></a>
   <a href="https://www.electronjs.org/"><img src="https://img.shields.io/badge/Electron-39-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron" /></a>
   <a href="https://react.dev"><img src="https://img.shields.io/badge/React-Vite-61DAFB?style=flat-square&logo=react&logoColor=222" alt="React" /></a>
@@ -236,9 +236,9 @@ Tagged commits run [`.github/workflows/release.yml`](.github/workflows/release.y
 2. Create and push a tag whose name matches `package.json`:
 
    ```bash
-   git tag v1.0.3
+   git tag v1.0.7
    git push origin main
-   git push origin v1.0.3
+   git push origin v1.0.7
    ```
 
 3. Watch **Actions → Build and Release**. The job uses `GITHUB_TOKEN` only (no separate `GH_TOKEN` secret required). Builds are unsigned on macOS in CI (`CSC_IDENTITY_AUTO_DISCOVERY=false`); expect Gatekeeper prompts until you wire Apple signing/notarization.
@@ -249,6 +249,7 @@ Tagged commits run [`.github/workflows/release.yml`](.github/workflows/release.y
 
 The built `.dmg` (or zip) **does not include** Python, Whisper models, `sox`, `mpv`, or `yt-dlp` **unless** you add them to the build. A fresh install from disk image alone is expected to show setup hints until the host machine has the usual tools:
 
+* **Electron packaged paths:** `backend/**` is delivered **outside** `app.asar` (`asarUnpack`) so Whisper’s Python subprocess can read `transcribe.py` and use `cwd`; without this, packaged macOS builds can throw **`spawn ENOTDIR`** during capture.
 * **Whisper (Python):** A Python 3 with `openai-whisper` installed — the same as running `npm run setup-python` in the repo, or `pip install openai-whisper` for the interpreter you point at with `MUSEONIC_PYTHON_BIN`.
 * **Capture:** `sox` or `rec` (e.g. `brew install sox` on macOS). GUI apps on macOS often get a **minimal `PATH`**; the app now prepends common Homebrew paths so Homebrew installs are found without a login shell.
 * **Search / playback:** `yt-dlp` and `mpv` (or VLC), typically from Homebrew or your package manager.

@@ -129,15 +129,22 @@ async function transcribeAudio(filePath) {
       resolved = true;
       clearTimeout(timeout);
       logger.error('whisper spawn error', err);
-      
+
       if (err.code === 'ENOENT') {
         reject(new Error(
           `Python binary not found: ${config.pythonBinary}\n` +
           'Please run: npm run setup-python'
         ));
-      } else {
-        reject(err);
+        return;
       }
+      if (err.code === 'ENOTDIR') {
+        reject(new Error(
+          'Could not launch Whisper because the transcription script path is not executable from the app archive. ' +
+            'Rebuild with backend unpacked (electron-builder `asarUnpack` for `backend/**`) so Python can read transcribe.py on disk.'
+        ));
+        return;
+      }
+      reject(err);
     });
 
     subprocess.on('close', (code) => {

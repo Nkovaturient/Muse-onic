@@ -18,6 +18,24 @@ function loadEnv() {
   return projectRoot;
 }
 
+function resolveBundledResourcesPython() {
+  try {
+    const { app } = require('electron');
+    if (!app?.isPackaged) {
+      return null;
+    }
+    const resRoot = process.resourcesPath;
+    if (process.platform === 'win32') {
+      const winPy = path.join(resRoot, 'venv', 'Scripts', 'python.exe');
+      return fs.existsSync(winPy) ? winPy : null;
+    }
+    const macLinPy = path.join(resRoot, 'venv', 'bin', 'python3');
+    return fs.existsSync(macLinPy) ? macLinPy : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 function resolvePythonBinary(projectRoot) {
   const fromEnv = (process.env.MUSEONIC_PYTHON_BIN || '').trim();
   if (fromEnv) {
@@ -27,6 +45,11 @@ function resolvePythonBinary(projectRoot) {
     if (fs.existsSync(fromEnv)) {
       return fromEnv;
     }
+  }
+
+  const resourcesVenvPy = resolveBundledResourcesPython();
+  if (resourcesVenvPy) {
+    return resourcesVenvPy;
   }
 
   const venvPath = path.join(projectRoot, 'venv', 'bin', 'python3');

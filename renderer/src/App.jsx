@@ -77,7 +77,9 @@ export default function App() {
           );
         } else if (!d.whisperImportOk) {
           parts.push(
-            'The whisper Python package is missing. Run: pip install openai-whisper (in the same environment as the app’s Python) or npm run setup-python from the project repository.'
+            d.isPackaged
+              ? 'Whisper (`openai-whisper`) is not installed on the Python Museonic uses. Typical macOS fix: `/opt/homebrew/bin/python3 -m pip install openai-whisper` (match the interpreter from diagnostics if yours differs), then restart. GitHub Releases builds don’t bundle PyTorch/Whisper; see README Distribution to ship an optional bundled venv.'
+              : 'The whisper Python package is missing. Run: pip install openai-whisper (in the same environment as the app’s Python) or npm run setup-python from the project repository.'
           );
         }
         if (!d.ytDlpOk) {

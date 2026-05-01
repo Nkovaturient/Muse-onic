@@ -53,6 +53,14 @@ async function extractFingerprint(filePath) {
 
     subprocess.on('error', (err) => {
       logger.error('melody spawn error', err);
+      if (err.code === 'ENOTDIR') {
+        reject(
+          new Error(
+            'Could not extract melody fingerprints: Python cwd/script path blocked by app archive. Reinstall Museonic ≥1.0.7 (backend unpacked).'
+          )
+        );
+        return;
+      }
       reject(err);
     });
 
