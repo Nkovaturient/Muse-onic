@@ -3,7 +3,7 @@
 > **TL;DR: I was tired of Youtube Ads and Spotify Freemium. Hence, this. Period.**
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/Version-1.0.0-6366F1?style=flat-square" alt="version" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Version-1.0.3-6366F1?style=flat-square" alt="version" /></a>
   <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/License-ISC-555555?style=flat-square" alt="License ISC" /></a>
   <a href="https://www.electronjs.org/"><img src="https://img.shields.io/badge/Electron-39-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron" /></a>
   <a href="https://react.dev"><img src="https://img.shields.io/badge/React-Vite-61DAFB?style=flat-square&logo=react&logoColor=222" alt="React" /></a>
@@ -228,6 +228,23 @@ Create a `.env` file in the root directory:
 
 ---
 
+## Ship with GitHub Releases (CI)
+
+Tagged commits run [`.github/workflows/release.yml`](.github/workflows/release.yml): macOS DMG/ZIP, Windows NSIS/portable, and Linux AppImage/deb/rpm are attached to a new [GitHub Release](https://docs.github.com/repositories/releasing-projects-on-github/about-releases).
+
+1. Commit on `main` and align `package.json` `"version"` with the release (semver).
+2. Create and push a tag whose name matches `package.json`:
+
+   ```bash
+   git tag v1.0.3
+   git push origin main
+   git push origin v1.0.3
+   ```
+
+3. Watch **Actions → Build and Release**. The job uses `GITHUB_TOKEN` only (no separate `GH_TOKEN` secret required). Builds are unsigned on macOS in CI (`CSC_IDENTITY_AUTO_DISCOVERY=false`); expect Gatekeeper prompts until you wire Apple signing/notarization.
+
+---
+
 ## Distribution (DMG / zip) and what end users need
 
 The built `.dmg` (or zip) **does not include** Python, Whisper models, `sox`, `mpv`, or `yt-dlp` **unless** you add them to the build. A fresh install from disk image alone is expected to show setup hints until the host machine has the usual tools:
@@ -239,6 +256,18 @@ The built `.dmg` (or zip) **does not include** Python, Whisper models, `sox`, `m
 **Optional bundled venv:** To ship a self-contained Python, run `npm run setup-python` before `npm run dist`, add an `extraResources` block in `package.json` to copy `venv` into the app’s `Resources` folder (see [electron-builder extraResources](https://www.electron.build/configuration/configuration#Configuration-extraResources)). The main process sets `MUSEONIC_PYTHON_BIN` to `process.resourcesPath/venv/bin/python3` when that file exists. Omit `extraResources` if the venv is not present or the build will fail.
 
 **Microphone vs system audio:** Humming and singing use the **microphone** — set `MUSEONIC_RECORDING_MODE=mic` (default in code and `.env.example`). **System audio** (capturing other apps) requires a **virtual loopback** such as [BlackHole](https://existential.audio/blackhole/); that is a separate install, not a built-in macOS toggle.
+
+## Mac App Store & Google Play — what “efficient” looks like from this codebase
+
+This repo ships **Electron for desktop** (macOS / Windows / Linux). The Play Store and Apple’s **mobile** App Store distribute **native or hybrid mobile** apps—not the Electron binary described here—unless you intentionally ship something like a **[Capacitor](https://capacitorjs.com/) shell** wrapping a slimmed-down web bundle (still a sizeable project).
+
+### Packaging checklist reused across stores
+
+* **Production icon set**: regenerate with `npm run build:icon` (`build/icon.png` gets a baked superellipse outline so Electron’s Dock shows a rounded silhouette; adjust `scripts/apply-circular-macos-icon.js` if you tune the curve). Capture **PNG feature graphic** / **tablet & phone Adaptive Icon** variants from the same brand source when you start the mobile SKU.
+* **Privacy & permissions**: microphone is core—keep copy accurate in platform strings (`extendInfo` for macOS, `AndroidManifest` + in-app dialogs for Play).
+* **Release hygiene**: versioning in `package.json`, signed artefacts, privacy policy URL, and changelog per store submission.
+
+---
 
 ## Mac App Store (expectations)
 

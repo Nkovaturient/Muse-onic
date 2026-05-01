@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('museonic', {
+  quitApp: () => ipcRenderer.invoke('app:quit'),
   onRecordTrigger: (callback) => ipcRenderer.on('trigger-record', callback),
   recordStart: () => ipcRenderer.invoke('record:start'),
   recordStop: () => ipcRenderer.invoke('record:stop'),

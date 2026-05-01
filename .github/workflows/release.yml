@@ -5,17 +5,21 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -24,37 +28,44 @@ jobs:
           cache-dependency-path: |
             package-lock.json
             renderer/package-lock.json
-      
+
+      - name: Install Linux build dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            rpm fakeroot libc6-dev \
+            libnss3 libgtk-3-0 libnotify4 libxss1 libxtst6 libdrm2 libgbm1 \
+            libasound2 libsecret-1-dev
+
       - name: Install root dependencies
         run: npm ci
-      
+
       - name: Install renderer dependencies
         run: |
           cd renderer
           npm ci
-      
+
+      - name: Rebuild native modules for Electron
+        run: npm run rebuild
+
       - name: Build renderer
         run: npm run build:renderer
-      
+
       - name: Build Electron app (macOS)
         if: matrix.os == 'macos-latest'
         run: npm run dist:mac
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      
+
       - name: Build Electron app (Windows)
         if: matrix.os == 'windows-latest'
         run: npm run dist:win
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      
+
       - name: Build Electron app (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: npm run dist:linux
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      
+
       - name: Upload macOS artifacts
         if: matrix.os == 'macos-latest'
         uses: actions/upload-artifact@v4
@@ -62,7 +73,7 @@ jobs:
           name: dist-macos
           path: dist-electron/*
           if-no-files-found: error
-      
+
       - name: Upload Windows artifacts
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
@@ -70,7 +81,7 @@ jobs:
           name: dist-windows
           path: dist-electron/*
           if-no-files-found: error
-      
+
       - name: Upload Linux artifacts
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
@@ -82,35 +93,29 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Download macOS artifacts
         uses: actions/download-artifact@v4
         with:
           name: dist-macos
           path: dist-electron/macos
-      
+
       - name: Download Windows artifacts
         uses: actions/download-artifact@v4
         with:
           name: dist-windows
           path: dist-electron/windows
-      
+
       - name: Download Linux artifacts
         uses: actions/download-artifact@v4
         with:
           name: dist-linux
           path: dist-electron/linux
-      
-      - name: Extract tag name
-        id: tag
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-      
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -121,4 +126,3 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

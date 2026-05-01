@@ -1,6 +1,6 @@
 {
   "name": "museonic",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Local voice-to-song AI companion built with Electron, Whisper, and n8n automation.",
   "main": "main.js",
   "scripts": {

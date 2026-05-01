@@ -37,7 +37,8 @@ const fallbackBridge = {
     throw new Error('Museonic bridge unavailable in this environment.');
   },
   stopSong: async () => {},
-  getDiagnostics: async () => null
+  getDiagnostics: async () => null,
+  quitApp: async () => {}
 };
 
 export default function App() {
@@ -234,6 +235,14 @@ export default function App() {
     setBridgeMessage(null);
   }
 
+  function requestQuitApp() {
+    if (!bridgeIsMock && museonic.quitApp) {
+      void museonic.quitApp();
+      return;
+    }
+    closeModal();
+  }
+
   function openModal() {
     setIsOpen(true);
     setBridgeMessage(null);
@@ -245,8 +254,8 @@ export default function App() {
         <div className="landing">
           <div className="landing-card">
             <div className="brand">Museonic</div>
-            <p className="landing-text">Press the button below or use Ctrl+M inside the Electron app to start humming.</p>
             <button className="btn" onClick={openModal}>Open Recorder</button>
+            <p className="landing-text"> Cmd+M to start humming.</p>
             {setupHint && <p className="hint warning">{setupHint}</p>}
             {bridgeMessage && <p className="hint warning">{bridgeMessage}</p>}
           </div>
@@ -257,7 +266,7 @@ export default function App() {
           <div className="panel">
             <div className="panel-header">
               <div className="brand">Museonic</div>
-              <button className="close-btn" onClick={closeModal}>✕</button>
+              <button className="close-btn" onClick={requestQuitApp} aria-label="Quit Museonic">✕</button>
             </div>
 
             <div className="panel-body">

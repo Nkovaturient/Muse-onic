@@ -48,17 +48,17 @@ function resolveBrandLogoPath() {
   return null;
 }
 
-function calculateWindowPosition() {
+function calculateWindowPosition(windowWidth, windowHeight) {
   const primaryDisplay = screen.getPrimaryDisplay();
-  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
-  const windowWidth = 380;
-  const windowHeight = 580;
-  const margin = 20;
-  
-  return {
-    x: screenWidth - windowWidth - margin,
-    y: screenHeight - windowHeight - margin
-  };
+  const {
+    x: workX,
+    y: workY,
+    width: workWidth,
+    height: workHeight
+  } = primaryDisplay.workArea;
+  const x = Math.round(workX + (workWidth - windowWidth) / 2);
+  const y = Math.round(workY + (workHeight - windowHeight) / 2);
+  return { x, y };
 }
 
 function createWindow() {
@@ -66,8 +66,8 @@ function createWindow() {
     width: 480,
     height: 680
   };
-  
-  const position = calculateWindowPosition();
+
+  const position = calculateWindowPosition(windowSize.width, windowSize.height);
   const brandLogoPath = resolveBrandLogoPath();
   
   mainWindow = new BrowserWindow({
@@ -99,17 +99,21 @@ function createWindow() {
 
   screen.on('display-metrics-changed', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      const newPosition = calculateWindowPosition();
       const [currentX, currentY] = mainWindow.getPosition();
       const { width, height } = mainWindow.getBounds();
-      
       const primaryDisplay = screen.getPrimaryDisplay();
-      const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
-      const margin = 20;
-      
-      if (currentX > screenWidth - width - margin - 50 && 
-          currentY > screenHeight - height - margin - 50) {
-        mainWindow.setPosition(newPosition.x, newPosition.y);
+      const work = primaryDisplay.workArea;
+      const workCenterX = work.x + work.width / 2;
+      const workCenterY = work.y + work.height / 2;
+      const winCenterX = currentX + width / 2;
+      const winCenterY = currentY + height / 2;
+      const slack = Math.max(width, height) * 0.15;
+      if (
+        Math.abs(winCenterX - workCenterX) < slack &&
+        Math.abs(winCenterY - workCenterY) < slack
+      ) {
+        const next = calculateWindowPosition(width, height);
+        mainWindow.setPosition(next.x, next.y);
         logger.info('Window repositioned due to screen change');
       }
     }
@@ -138,7 +142,8 @@ function registerHotkey() {
     }
     
     if (!mainWindow.isVisible()) {
-      const position = calculateWindowPosition();
+      const b = mainWindow.getBounds();
+      const position = calculateWindowPosition(b.width, b.height);
       mainWindow.setPosition(position.x, position.y);
     }
     
@@ -270,4 +275,9 @@ ipcMain.handle('app:branding', async () => {
   return {
     logoPath: resolveBrandLogoPath()
   };
+});
+
+ipcMain.handle('app:quit', () => {
+  app.quit();
+  return true;
 });
