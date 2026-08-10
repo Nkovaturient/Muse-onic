@@ -3,7 +3,7 @@
 > **TL;DR: I was tired of Youtube Ads and Spotify Freemium. Hence, this. Period.**
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/Version-1.0.7-6366F1?style=flat-square" alt="version" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Version-1.0.2-6366F1?style=flat-square" alt="version" /></a>
   <a href="https://opensource.org/licenses/ISC"><img src="https://img.shields.io/badge/License-ISC-555555?style=flat-square" alt="License ISC" /></a>
   <a href="https://www.electronjs.org/"><img src="https://img.shields.io/badge/Electron-39-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron" /></a>
   <a href="https://react.dev"><img src="https://img.shields.io/badge/React-Vite-61DAFB?style=flat-square&logo=react&logoColor=222" alt="React" /></a>
